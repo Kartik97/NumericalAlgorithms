@@ -9,14 +9,13 @@ def a(h):
     return (1/4)
 
 def c(h):
-    # return (100+1.11h)**2 - (100+1.1*h)**2
+#     return (10000+1.11*h)**2-(10000+1.1*h)**2
     return 0.01*h*(200+2.21*h)
 
-# Given a value h-calculates the expected root values using the original formula
+# Given numpy array h calculates the smaller magnitude root which involves cancellation error.
 def calRoots(h):
     return ((-b(h)-math.sqrt(b(h)**2-4*a(h)*c(h)))/(2*a(h)),(-b(h)+math.sqrt(b(h)**2-4*a(h)*c(h)))/(2*a(h)))
 
-# Returns the smaller root value of the taken function
 def xStar(h):
     return -0.02*h
 
@@ -41,6 +40,7 @@ if __name__ == '__main__':
 
     # Part (b)
 
+
     xlog = (np.log(x[:500]))
     ylog1 = (np.log(y1[:500]))
     ax = plt.gca()
@@ -51,9 +51,9 @@ if __name__ == '__main__':
     plt.legend()
     ax.grid(True)
     plt.title(r'Log-Log plot')
+    plt.savefig('partb.png')
     plt.show()
     plt.clf()
-
     # Part (c)
 
     xlog = (np.log(x[:500]))
@@ -69,6 +69,6 @@ if __name__ == '__main__':
     plt.ylabel(r'log(y)')
     ax.grid(True)
     plt.title(r'Log-Log plot')
+    plt.savefig('partc.png')
     plt.show()
     plt.clf()
-    plt.close()
