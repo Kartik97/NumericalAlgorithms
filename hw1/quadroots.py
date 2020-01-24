@@ -9,13 +9,14 @@ def a(h):
     return (1/4)
 
 def c(h):
-#     return (10000+1.11*h)**2-(10000+1.1*h)**2
+    # return (100+1.11h)**2 - (100+1.1*h)**2
     return 0.01*h*(200+2.21*h)
 
-# Given numpy array h calculates the smaller magnitude root which involves cancellation error.
+# Given a value h-calculates the expected root values using the original formula
 def calRoots(h):
     return ((-b(h)-math.sqrt(b(h)**2-4*a(h)*c(h)))/(2*a(h)),(-b(h)+math.sqrt(b(h)**2-4*a(h)*c(h)))/(2*a(h)))
 
+# Returns the smaller root value of the taken function
 def xStar(h):
     return -0.02*h
 
