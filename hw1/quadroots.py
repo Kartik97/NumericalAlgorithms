@@ -21,6 +21,10 @@ def xStar(h):
 
 # Part (c)- Quardroots function
 def quadroots(a,b,c):
+    temp = max(a,b,c)
+    a=a/temp
+    b=b/temp
+    c=c/temp
     if(b>=0):
         return (((-b-math.sqrt(b**2-4*a*c))/(2*a)),(2*c/(-b-math.sqrt(b**2-4*a*c))))
     else:
@@ -41,7 +45,7 @@ if __name__ == '__main__':
     # Part (b)
 
 
-    xlog = (np.log(x[:500]))
+    xlog = (np.log(x[:500]))           # Showing the first 500 samples for better visibility
     ylog1 = (np.log(y1[:500]))
     ax = plt.gca()
     l1, = plt.plot(xlog, ylog1, linewidth=2, color='navy')
@@ -54,9 +58,9 @@ if __name__ == '__main__':
     plt.savefig('partb.png')
     plt.show()
     plt.clf()
-    # Part (c)
 
-    xlog = (np.log(x[:500]))
+    # Part (c)
+    xlog = (np.log(x[:500]))    
     ylog1 = (np.log(y1[:500]))
     ylog2 = (np.log(y2[:500]))
     ax = plt.gca()
