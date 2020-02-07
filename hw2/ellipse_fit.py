@@ -31,18 +31,11 @@ def ellipse_fit(x,y):
     q,r = np.linalg.qr(A)
     prod = np.dot(q.conj().T,b)
     theta = back_subs(r,prod)
-    xr = [-15,35]
-    yr = [-10,45]
-    fcontour(testF,xr,yr,theta)
-    plt.scatter(x,y)
-    plt.show()
+    return theta
 
-    plt.figure(1)
-    xr = [min(x)-10,max(x)+20]
-    yr = [min(x)-10,max(y)+20]
-    fcontour(testF,xr,yr,theta)
-    plt.scatter(x,y)
-    plt.show()
-
-if __name__ == "__main__":
-    ellipse_fit(x,y)
+    # print(theta)
+    # xr = [-15,35]
+    # yr = [-10,45]
+    # fcontour(testF,xr,yr,theta)
+    # plt.scatter(x,y)
+    # plt.show()

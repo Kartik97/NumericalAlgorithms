@@ -22,13 +22,4 @@ def weighted_qr(A,W):
             temp = np.dot(Q[:,i:i+1].T,W)
             R[i][j] = np.dot(temp,V[:,j:j+1])
             V[:,j:j+1] = V[:,j:j+1]-(R[i][j]*Q[:,i:i+1])
-    return Q,R
-
-if __name__ == '__main__':
-    n=3
-    A,W = createAW(n)
-
-    Z,R = weighted_qr(A,W)
-    # print(Z)
-    # print(R)
-    # print(np.dot(Z,R))
+    return [Q,R]
