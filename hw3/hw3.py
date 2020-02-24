@@ -2,8 +2,6 @@ from scipy import sparse
 from scipy.sparse import linalg,SparseEfficiencyWarning
 import numpy as np
 import math
-import warnings
-# warnings.simplefilter('ignore',SparseEfficiencyWarning)
 
 def gridLaplacian(m1, m2):
     def index(i1,i2):
@@ -55,6 +53,29 @@ def icIteration(A, b, R, x):
     sol = linalg.spsolve_triangular(R.tocsr(),y,lower=False)
     return sol
 
+def conjugateGradient(A,b,tolerance):
+    x = sparse.dok_matrix((A.shape[0],1))
+    r = b
+    p = r
+    norms = []
+    for _ in range(A.shape[0]):
+        if ((np.linalg.norm(r,ord=2)/np.linalg.norm(b,ord=2)) <= tolerance):
+            break
+        alpha = (r.conj().T@r)/(p.conj().T@A@p)
+        x = x + alpha*p
+        r_n = r - alpha*(A@p)
+        beta = (r_n.conj().T@r_n)/(r.conj().T@r)
+        p = r_n + beta*p
+        r = r_n
+        norms.append(np.linalg.norm(r,ord=2)/np.linalg.norm(b,ord=2))
+    return x,norms
+
+def preconditionedConjugateGradient(A, b, R, tolerance):
+    Rinv = sparse.linalg.inv(R.tocsc())
+    y,norms = conjugateGradient(Rinv.conj().T@A@Rinv,Rinv.conj().T@b,tolerance)
+    x = linalg.spsolve_triangular(R.tocsr(),y,lower=False)
+    return x,norms
+
 m1 = 2
 m2 = 2
 L = gridLaplacian(m1,m2)
@@ -63,5 +84,9 @@ x = np.array([1,1,1,1])
 b = np.array([[2.5],[2.5],[2.5],[2.5]],dtype=float)
 # test = sparse.dok_matrix([[3,0,-1,-1,0,-1],[0,2,0,-1,0,0],[-1,0,3,0,-1,0],[-1,-1,0,2,0,-1],[0,0,-1,0,3,-1],[-1,0,0,-1,-1,4]],dtype=np.float32)
 R = incompleteCholesky(A)
-x1 = icIteration(A,b,R,np.array([[0],[0],[0],[0]],dtype=float))
-print(x1)
+x0 = np.array([[0],[0],[0],[0]],dtype=float)
+x1 = icIteration(A,b,R,x0)
+x1,norms1 = conjugateGradient(A,b,1e-20)
+x2,norms2 = preconditionedConjugateGradient(A,b,R,1e-20)
+print(x1,"\n",norms1)
+print(x2,"\n",norms2)
