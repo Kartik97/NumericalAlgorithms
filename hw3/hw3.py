@@ -1,6 +1,9 @@
 from scipy import sparse
+from scipy.sparse import linalg,SparseEfficiencyWarning
 import numpy as np
 import math
+import warnings
+# warnings.simplefilter('ignore',SparseEfficiencyWarning)
 
 def gridLaplacian(m1, m2):
     def index(i1,i2):
@@ -48,13 +51,17 @@ def icIteration(A, b, R, x):
     M = R.conj().T@R
     N = M-A
     t = N@x + b
-    y = sparse.linalg.spsolve_triangular(R.conj().T,t)
-    sol = sparse.linalg.spsolve_triangular(R,y,lower=False)
+    y = linalg.spsolve_triangular(R.conj().T.tocsr(),t,lower=True)
+    sol = linalg.spsolve_triangular(R.tocsr(),y,lower=False)
     return sol
 
 m1 = 2
 m2 = 2
 L = gridLaplacian(m1,m2)
 A = L + 20*sparse.eye(m1*m2)/(m1**2 + m2**2)
-test = sparse.dok_matrix([[3,0,-1,-1,0,-1],[0,2,0,-1,0,0],[-1,0,3,0,-1,0],[-1,-1,0,2,0,-1],[0,0,-1,0,3,-1],[-1,0,0,-1,-1,4]],dtype=np.float32)
-# icIteration(A,1,2,3)
+x = np.array([1,1,1,1])
+b = np.array([[2.5],[2.5],[2.5],[2.5]],dtype=float)
+# test = sparse.dok_matrix([[3,0,-1,-1,0,-1],[0,2,0,-1,0,0],[-1,0,3,0,-1,0],[-1,-1,0,2,0,-1],[0,0,-1,0,3,-1],[-1,0,0,-1,-1,4]],dtype=np.float32)
+R = incompleteCholesky(A)
+x1 = icIteration(A,b,R,np.array([[0],[0],[0],[0]],dtype=float))
+print(x1)
