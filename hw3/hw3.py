@@ -44,10 +44,17 @@ def incompleteCholesky(A):
                 A[i+1+j,y[k]+i+1] = A[j+i+1,y[k]+i+1]-b[j,y[k]]
     return R
 
+def icIteration(A, b, R, x):
+    M = R.conj().T@R
+    N = M-A
+    t = N@x + b
+    y = sparse.linalg.spsolve_triangular(R.conj().T,t)
+    sol = sparse.linalg.spsolve_triangular(R,y,lower=False)
+    return sol
 
 m1 = 2
 m2 = 2
 L = gridLaplacian(m1,m2)
 A = L + 20*sparse.eye(m1*m2)/(m1**2 + m2**2)
 test = sparse.dok_matrix([[3,0,-1,-1,0,-1],[0,2,0,-1,0,0],[-1,0,3,0,-1,0],[-1,-1,0,2,0,-1],[0,0,-1,0,3,-1],[-1,0,0,-1,-1,4]],dtype=np.float32)
-R = incompleteCholesky(test)
+# icIteration(A,1,2,3)
