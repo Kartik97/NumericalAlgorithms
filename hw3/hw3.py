@@ -38,11 +38,15 @@ def incompleteCholesky(A):
     for i in tqdm(range(m)):
         R[i,i] = math.sqrt(T[i,i])
         R[i,i+1:] = T[i,i+1:]/R[i,i]
-        b = T[i,i+1:]
-        b = (b.conj().T@b)/T[i,i]
+        # b = T[i,i+1:]
+        # b = (b.conj().T@b)/T[i,i]
         (x,y) = T[i+1:,i+1:].nonzero()
         for k in range(len(x)):
-            T[x[k]+i+1,y[k]+i+1] = T[x[k]+i+1,y[k]+i+1]-b[x[k],y[k]]
+            if(T[i,y[k]+i+1]==0 or T[i,x[k]+i+1]==0):
+                pass
+            elif(x[k]<=y[k]):
+                # T[x[k]+i+1,y[k]+i+1] = T[x[k]+i+1,y[k]+i+1]-b[x[k],y[k]]
+                T[x[k]+i+1,y[k]+i+1] = T[x[k]+i+1,y[k]+i+1]-T[i,x[k]+i+1]*T[i,y[k]+i+1]/T[i,i]
         # for j in range(m-i-1):
         #     (x,y) = T[i+1:,i+1:].getrow(j).nonzero()
         #     for k in range(len(x)):
@@ -99,40 +103,41 @@ def drawGraph(iterNorms,cg,precg):
     ax.set_ylabel("Error: ||r|| / ||b|| (On negative log scale)")
     plt.show()
 
-m1 = 10
+m1 = 100
 m2 = 10
 L = gridLaplacian(m1,m2)
 A = L + 20*sparse.eye(m1*m2)/(m1**2 + m2**2)
-b = 0.254*np.ones((100,1))
+b = 0.254*np.ones((1000,1))
 # test = sparse.dok_matrix([[3.0,0,-1,-1,0,-1],[0,2,0,-1,0,0],[-1,0,3,0,-1,0],[-1,-1,0,2,0,-1],[0,0,-1,0,3,-1],[-1,0,0,-1,-1,4]],dtype=np.float32)
 # t = incompleteCholesky(test)
+# print(t.toarray())
 st = time.time()
 R = incompleteCholesky(A)
 print(time.time()-st)
-# print(R)
+print(R)
 # SOL = all 1
-x0 = np.zeros((100,1),dtype=float)
-st = time.time()
-x1 = icIteration(A,b,R,x0)
-print(time.time()-st)
+# x0 = np.zeros((100,1),dtype=float)
+# st = time.time()
+# x1 = icIteration(A,b,R,x0)
+# print(time.time()-st)
 
-iterNorms = []
-x = np.zeros((100,1),dtype=float)
-# while True:
-for i in range(A.shape[0]):
-    if((np.linalg.norm(A@x-b,ord=2)/np.linalg.norm(b,ord=2)) < 1e-15):
-        break
-    x = icIteration(A,b,R,x)
-    iterNorms.append(np.linalg.norm(A@x-b,ord=2)/np.linalg.norm(b,ord=2))
-# print(iterNorms)
-# print(x1)
-st = time.time()
-x1,norms1 = conjugateGradient(A,b,1e-20)
-print(time.time()-st)
-st = time.time()
-x2,norms2 = preconditionedConjugateGradient(A,b,R,1e-20)
-print(time.time()-st)
-print("\n",norms1)
-print("\n",norms2)
+# iterNorms = []
+# x = np.zeros((100,1),dtype=float)
+# # while True:
+# for i in range(A.shape[0]):
+#     if((np.linalg.norm(A@x-b,ord=2)/np.linalg.norm(b,ord=2)) < 1e-15):
+#         break
+#     x = icIteration(A,b,R,x)
+#     iterNorms.append(np.linalg.norm(A@x-b,ord=2)/np.linalg.norm(b,ord=2))
+# # print(iterNorms)
+# # print(x1)
+# st = time.time()
+# x1,norms1 = conjugateGradient(A,b,1e-20)
+# print(time.time()-st)
+# st = time.time()
+# x2,norms2 = preconditionedConjugateGradient(A,b,R,1e-20)
+# print(time.time()-st)
+# print("\n",norms1)
+# print("\n",norms2)
 
-drawGraph(iterNorms,norms1,norms2)
+# drawGraph(iterNorms,norms1,norms2)
