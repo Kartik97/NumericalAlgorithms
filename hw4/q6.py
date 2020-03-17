@@ -6,8 +6,8 @@ def f(A0,A1,y1,x):
     return min(np.linalg.eigvals((A0+x*A1)))-y1
 
 def findRoot1(A0,A1,y1,etol):
-    A0eval,A0evec = linalg.eig(A0)
-    A1eval,A1evec = linalg.eig(A1)
+    A0eval = linalg.eigvals(A0)
+    A1eval = linalg.eigvals(A1)
     a = (y1-min(A0eval))/min(A1eval)
     b = (y1-max(A0eval))/max(A1eval)
     count=0
@@ -21,7 +21,7 @@ def findRoot1(A0,A1,y1,etol):
         count+=1
         data = np.vstack([data,[count,a,b,f(A0,A1,y1,a),f(A0,A1,y1,b),abs(b-a)]])
     # print(data.real)
-    if(abs(min(np.linalg.eigvals((A0+a*A1)))-y1) <  abs(min(np.linalg.eigvals(linalg.eigvals(A2).eigvals(A2)(A0+b*A1)))-y1)):
+    if(abs(min(np.linalg.eigvals((A0+a*A1)))-y1) <  abs(min(np.linalg.eigvals((A0+b*A1)))-y1)):
         return a
     else:
         return b
