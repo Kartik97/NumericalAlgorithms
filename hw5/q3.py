@@ -12,7 +12,7 @@ def createMatrix(t0,t1,y0,y1,m0,m1):
     A[1,3]=t1**3
     A[2,2]=2*t0
     A[2,3]=3*t0*t0
-    A[3,2]=2*t0
+    A[3,2]=2*t0 
     A[3,3]=3*t1*t1
 
     b = np.array([y0,y1,m0,m1])
@@ -56,7 +56,29 @@ def piecewiseCubic(t,y,m,tnew):
     factor=np.array([[1.0],[tnew],[tnew**2],[tnew**3]])
     return coeffs[i].T@factor
 
+def denominator(t0,t1,t2):
+    return (t0-t1)*(t0-t2)
 
+def estimateDerivatives(t,y):
+    # Assuming list length would be atleast 3
+    t,y=list(t),list(y)
+    n=len(t)
+    derivatives=[]
+    t0,t1,t2=t[0],t[1],t[2]
+    term1=y[0]*(2*t0-t1-t2)/denominator(t0,t1,t2)
+    term2=y[1]*(t0-t2)/denominator(t1,t0,t2)
+    term3=y[2]*(t0-t1)/denominator(t2,t0,t1)
+    derivatives.append(term1+term2+term3)
+    for i in range(1,n-1):
+        term1=y[i-1]*(t[i]-t[i+1])/denominator(t[i-1],t[i],t[i+1])
+        term2=y[i]*(2*t[i]-t[i-1]-t[i])/denominator(t[i],t[i-1],t[i+1])
+        term3=y[i+1]*(t[i]-t[i-1])/denominator(t[i+1],t[i-1],t[i])
+        derivatives.append(term1+term2+term3)
+    term1=y[n-3]*(t[n-1]-t[n-2])/denominator(t[n-3],t[n-2],t[n-1])
+    term2=y[n-2]*(t[n-1]-t[n-3])/denominator(t[n-2],t[n-3],t[n-1])
+    term3=y[n-1]*(2*t[n-1]-t[n-2]-t[n-3])/denominator(t[n-1],t[n-2],t[n-3])
+    derivatives.append(term1+term2+term3)
+    return derivatives
 
 print(piecewiseCubic([1.3,1.6,1.9],[0.620086,0.4554022,0.2818186],[-0.5220232,-0.5648959,-0.5811571],1.5))  #0.5118277-0.512165
-print(piecewiseCubic([1.3,1.6,1.9],[0.620086,0.4554022,0.2818186],[-0.5220232,-0.5648959,-0.5811571],1.5))  #0.5118277
+print(estimateDerivatives([1.3,1.6,1.9],[0.620086,0.4554022,0.2818186]))
