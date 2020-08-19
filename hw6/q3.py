@@ -5,10 +5,13 @@ def calculateGradient(X,var,links,m,n,p):
     k=X.shape[1]
     grad = np.zeros((n,k))
     for i in links:
-        xi=var[i[0]-1] if i[0]>m else X[i[0]-1]
-        xj=var[i[0]-1] if i[1]>m else X[i[1]-1]
-        print(xi,xj)
-
+        xi=var[i[0]-m-1] if i[0]>m else X[i[0]-1]
+        xj=var[i[1]-m-1] if i[1]>m else X[i[1]-1]
+        if(i[0]>m):
+            grad[i[0]-m-1]+= p*(np.linalg.norm(xi-xj,ord=2)**(p-2))*(xi-xj)
+        if(i[1]>m):
+            grad[i[1]-m-1]+= -p*(np.linalg.norm(xi-xj,ord=2)**(p-2))*(xi-xj)
+    print(grad)
 
 # def lineSearch(var,grad):
 
