@@ -39,14 +39,14 @@ def gradientDescent(X,links,k,m,n,p,eplison=1e-3,maxiter=1e2):
     # X=X.flatten()
     gradnorm = 1
     # var = np.zeros((n,k)) # Initialising all n points at zero
-    var = np.random.uniform(3.0,6.0,(n,k)) # Random Initialisation of points
+    var = np.random.uniform(4.0,6.0,(n,k)) # Random Initialisation of points
     i=1
     while gradnorm>eplison and i<maxiter:
         deltax=-calculateGradient(X,var,links,k,m,n,p)
         t=lineSearch(X,var,links,deltax,k,m,n,p)
         var=var+t*deltax
         gradnorm=np.linalg.norm(calculateGradient(X,var,links,k,m,n,p).flatten(),ord=2)
-        # print(gradnorm)
+        print(gradnorm)
         i+=1
     print(i)
     return var
@@ -106,11 +106,20 @@ def newton(X,links,k,m,n,p,epsilon=1e-3,maxiter=1e3):
     return var
 
 # X=np.array([[1,1],[1,2],[2,2],[2,1]])
-X = np.random.uniform(1,10,(8,2))
+# X = np.random.uniform(3,8,(8,2))
+X = np.array([[7.15237843,4.70701317],
+ [5.15542796,4.50275655],
+ [4.07949618, 3.21611181],
+ [7.51799915, 3.79230366],
+ [5.53265132, 7.0027515 ],
+ [4.2840709 , 3.78633124],
+ [6.7790279 , 5.03089901],
+ [7.5224723 , 3.47052628]])
 m,n,k,p=8,6,2,1.2
+# print(X)
 links=np.array([[14,1],[14,8],[14,7],[14,9],[14,13],[14,12],[13,1],[13,12],[13,2],[13,3],[13,11],[12,1],[12,11],[12,9],[11,3],[11,4],[11,10],[10,4],[10,14],[10,9],[10,6],[10,5],[9,6],[9,5],[9,7]])
-# result=gradientDescent(X,links,k,m,n,p)
-# print(result,f(X,result,links,p))
+result=gradientDescent(X,links,k,m,n,p)
+print(result,f(X,result,links,p))
 result=newton(X,links,k,m,n,p)
 print(result,f(X,result,links,p))
 
