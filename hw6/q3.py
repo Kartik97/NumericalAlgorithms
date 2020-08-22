@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import networkx as nx
+import matplotlib.pyplot as plt
 
 def calculateGradient(X,var,links,k,m,n,p):
     # X = (m*k), links=[[i,j]....[]]
@@ -25,10 +27,11 @@ def f(X,var,links,p):
 
 def lineSearch(X,var,links,deltax,k,m,n,p):
     t=1
-    alpha,beta=0.4,0.8
-    grad=calculateGradient(X,var,links,k,m,n,p).flatten()
-    while f(X,var+t*deltax,links,p)>f(X,var,links,p)+alpha*t*grad@deltax.flatten().T:
+    alpha,beta=0.2,0.8
+    grad=calculateGradient(X,var,links,k,m,n,p).reshape((1,-1))
+    while f(X,var+t*deltax,links,p)>f(X,var,links,p)+alpha*t*grad@deltax.reshape((-1,1)):
         t=beta*t
+    # print(t)
     return t 
 
 def gradientDescent(X,links,k,m,n,p,eplison=1e-3,maxiter=1e2):
@@ -36,7 +39,7 @@ def gradientDescent(X,links,k,m,n,p,eplison=1e-3,maxiter=1e2):
     # X=X.flatten()
     gradnorm = 1
     # var = np.zeros((n,k)) # Initialising all n points at zero
-    var = np.random.uniform(1.0,2.0,(n,k)) # Random Initialisation of points
+    var = np.random.uniform(3.0,6.0,(n,k)) # Random Initialisation of points
     i=1
     while gradnorm>eplison and i<maxiter:
         deltax=-calculateGradient(X,var,links,k,m,n,p)
@@ -80,7 +83,7 @@ def calculateHessian(X,var,links,k,m,n,p):
     return H
 
 def newton(X,links,k,m,n,p,epsilon=1e-3,maxiter=1e3):
-    var = np.random.uniform(1.0,2.0,(n,k)) # Random Initialisation of points
+    var = np.random.uniform(4.0,6.0,(n,k)) # Random Initialisation of points
     # var=np.array([[0.0949275,0.34440541],[0.70923956,0.43162053],[0.80891097,0.94935611]])
     decrement=1
     i=1
@@ -94,6 +97,8 @@ def newton(X,links,k,m,n,p,epsilon=1e-3,maxiter=1e3):
         t=lineSearch(X,var,links,deltax,k,m,n,p)
         var=var+t*deltax
         decrement=grad.T@H@grad
+        gradnorm=np.linalg.norm(calculateGradient(X,var,links,k,m,n,p).flatten(),ord=2)
+        # print(gradnorm)
         i+=1
         # print(H)
         # break
@@ -104,11 +109,38 @@ def newton(X,links,k,m,n,p,epsilon=1e-3,maxiter=1e3):
 X = np.random.uniform(1,10,(8,2))
 m,n,k,p=8,6,2,1.2
 links=np.array([[14,1],[14,8],[14,7],[14,9],[14,13],[14,12],[13,1],[13,12],[13,2],[13,3],[13,11],[12,1],[12,11],[12,9],[11,3],[11,4],[11,10],[10,4],[10,14],[10,9],[10,6],[10,5],[9,6],[9,5],[9,7]])
-result=gradientDescent(X,links,k,m,n,p)
-print(result,f(X,result,links,p))
-# result=newton(X,links,k,m,n,p)
+# result=gradientDescent(X,links,k,m,n,p)
 # print(result,f(X,result,links,p))
+result=newton(X,links,k,m,n,p)
+print(result,f(X,result,links,p))
 
+
+fig, ax = plt.subplots()
+G = nx.Graph()
+color_map=[]
+for i in range(m+n):
+    if(i+1<=m):
+        color_map.append('red')
+    else:
+        color_map.append('blue')
+    G.add_node(i+1)
+
+for i in links:
+    G.add_edge(i[0],i[1])
+
+pos={}
+for i,pt in enumerate(X):
+    pos[i+1]=list(pt)
+for i,pt in enumerate(result):
+    pos[i+m+1]=list(pt)
+
+options = {'node_size' : 100, 'node_color' : 'k'}
+nx.draw_networkx_nodes(G, pos, node_size=20, node_color=color_map,ax=ax)
+nx.draw_networkx_edges(G, pos, alpha=0.2)
+# plt.axis('off')
+plt.title('Graph')
+ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+plt.show()
 # print(links)
 # links=np.array([[7,2],[7,4],[7,3]])
 # k,m,n,p=2,6,6,1.2
