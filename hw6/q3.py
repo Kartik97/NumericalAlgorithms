@@ -10,7 +10,6 @@ def calculateGradient(X,var,links,k,m,n,p):
             grad[i[0]-m-1]+= p*(np.linalg.norm(xi-xj,ord=2)**(p-2))*(xi-xj)
         if(i[1]>m):
             grad[i[1]-m-1]+= -p*(np.linalg.norm(xi-xj,ord=2)**(p-2))*(xi-xj)
-    # print(grad)
     return grad
 
 def f(X,var,links):
@@ -33,7 +32,8 @@ def gradientDescent(X,links,k,m,n,p,eplison=1e-5):
     k=X.shape[1]
     # X=X.flatten()
     gradnorm = 1
-    var = np.zeros((n,k)) # Initialising all n points at zero
+    # var = np.zeros((n,k)) # Initialising all n points at zero
+    var = np.random.uniform(1.0,2.0,(n,k)) # Random Initialisation of points
     while gradnorm>eplison:
         d=-calculateGradient(X,var,links,k,m,n,p)
         t=lineSearch(X,var,links,d,k,m,n,p)
@@ -42,10 +42,14 @@ def gradientDescent(X,links,k,m,n,p,eplison=1e-5):
         print(gradnorm)
     return var
 
-X=np.array([[1,1],[2,1],[2,2],[1,2]])
-links=np.array([[5,3],[5,6],[5,2],[5,1],[6,4],[6,1],[6,2]])
-# links=np.array([[5,2]])
-k,m,n=2,4,2
-p=2
 
-print(gradientDescent(X,links,k,m,n,p))
+
+X=np.array([[0,0],[1,1]])
+# links=np.array([[5,3],[5,6],[5,2],[5,1],[6,4],[6,1],[6,2]])
+# links=np.array([[5,2]])
+links=np.array([[1,3],[2,3]])
+k,m,n=2,2,1
+p=1.2
+result=gradientDescent(X,links,k,m,n,p)
+print(result)
+
