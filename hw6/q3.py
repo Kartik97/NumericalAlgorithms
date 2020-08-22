@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 def calculateGradient(X,var,links,k,m,n,p):
     # X = (m*k), links=[[i,j]....[]]
@@ -18,6 +19,7 @@ def f(X,var,links,p):
     for i in links:
         xi=var[i[0]-m-1] if i[0]>m else X[i[0]-1]
         xj=var[i[1]-m-1] if i[1]>m else X[i[1]-1]
+        # print(xi,xj,xi-xj,np.linalg.norm(xi-xj,ord=2)**p)
         cost+=np.linalg.norm(xi-xj,ord=2)**p
     return cost
 
@@ -29,14 +31,14 @@ def lineSearch(X,var,links,deltax,k,m,n,p):
         t=beta*t
     return t 
 
-def gradientDescent(X,links,k,m,n,p,eplison=1e-5):
+def gradientDescent(X,links,k,m,n,p,eplison=1e-3,maxiter=1e2):
     X = X.reshape((m,k))
     # X=X.flatten()
     gradnorm = 1
     # var = np.zeros((n,k)) # Initialising all n points at zero
     var = np.random.uniform(1.0,2.0,(n,k)) # Random Initialisation of points
     i=1
-    while gradnorm>eplison:
+    while gradnorm>eplison and i<maxiter:
         deltax=-calculateGradient(X,var,links,k,m,n,p)
         t=lineSearch(X,var,links,deltax,k,m,n,p)
         var=var+t*deltax
@@ -77,13 +79,13 @@ def calculateHessian(X,var,links,k,m,n,p):
     # print(H)
     return H
 
-def newton(X,links,k,m,n,p,epsilon=1e-5):
+def newton(X,links,k,m,n,p,epsilon=1e-3,maxiter=1e3):
     var = np.random.uniform(1.0,2.0,(n,k)) # Random Initialisation of points
     # var=np.array([[0.0949275,0.34440541],[0.70923956,0.43162053],[0.80891097,0.94935611]])
     decrement=1
     i=1
     # print(var)
-    while decrement>epsilon:
+    while decrement>epsilon and i<maxiter:
         H = calculateHessian(X,var,links,k,m,n,p)
         # print(H)
         grad = calculateGradient(X,var,links,k,m,n,p).reshape((-1,1))
@@ -93,22 +95,34 @@ def newton(X,links,k,m,n,p,epsilon=1e-5):
         var=var+t*deltax
         decrement=grad.T@H@grad
         i+=1
-        # print(t,var)
+        # print(H)
         # break
     print(i)
     return var
 
 # X=np.array([[1,1],[1,2],[2,2],[2,1]])
-# links=np.array([[5,3],[5,6],[5,2],[5,1],[6,4],[6,1],[6,2]])
-# links=np.array([[5,2]])
-# links=np.array([[1,3],[2,3]])
-# k,m,n=2,4,2
-# p=2
-# result=gradientDescent(X,links,k,m,n,p)
-# print(result)
+X = np.random.uniform(1,10,(8,2))
+m,n,k,p=8,6,2,1.2
+links=np.array([[14,1],[14,8],[14,7],[14,9],[14,13],[14,12],[13,1],[13,12],[13,2],[13,3],[13,11],[12,1],[12,11],[12,9],[11,3],[11,4],[11,10],[10,4],[10,14],[10,9],[10,6],[10,5],[9,6],[9,5],[9,7]])
+result=gradientDescent(X,links,k,m,n,p)
+print(result,f(X,result,links,p))
 # result=newton(X,links,k,m,n,p)
-# print(result)
-# newton(X,links,k,m,n,p)
+# print(result,f(X,result,links,p))
+
+# print(links)
+# links=np.array([[7,2],[7,4],[7,3]])
+# k,m,n,p=2,6,6,1.2
+# all_links,fixed_points=[],[]
+# for i in range(1,m+n+1):
+#     fixed_points.append(i)
+#     for j in range(i+1,m+n+1):
+#         all_links.append([i,j])
+# links=[]
+# for i in range(1,n+1):
+#     links.append([i+m,random.sample(fixed_points,1)[0]])
+# links=np.array(random.sample(all_links,12))
+# links=np.array(links)
+# print(links)
 
 # X = np.array([[0.23017621, 0.55718181],
 #        [0.71442189, 0.16026443],
@@ -116,23 +130,30 @@ def newton(X,links,k,m,n,p,epsilon=1e-5):
 #        [0.89201334, 0.13123567],
 #        [0.20364701, 0.73184623],
 #        [0.71984995, 0.01871416]])
-# m,n,k,p=6,5,2,5
+# m,n,k,p=6,5,2,1.2
+# links=[]
+# for i in range(1,m+1):
+#     for j in range(i+1,m+n+1):
+#         links.append([i,j])
+# print(links)
 # print(gradientDescent(X,links,k,m,n,p))
+# result=newton(X,links,k,m,n,p)
+# print(result)
 
-X=np.array([[0.23017621, 0.55718181],
-       [0.71442189, 0.16026443],
-       [0.2634742 , 0.69211105],
-       [0.89201334, 0.13123567],
-       [0.20364701, 0.73184623],
-       [0.71984995, 0.01871416]])
-m,n,p,k=6,3,2,2
-links=[]
-for i in range(1,m+n+1):
-    for j in range(i+1,m+n+1):
-        links.append([i,j])
-links=np.array(links)
-res=newton(X,links,k,m,n,p)
-print(res)
-print(f(X,res,links,p))
-res=gradientDescent(X,links,k,m,n,p)
-print(res)
+# X=np.array([[0.23017621, 0.55718181],
+#        [0.71442189, 0.16026443],
+#        [0.2634742 , 0.69211105],
+#        [0.89201334, 0.13123567],
+#        [0.20364701, 0.73184623],
+#        [0.71984995, 0.01871416]])
+# m,n,p,k=6,3,1.2,2
+# links=[]
+# for i in range(1,m+1):
+#     for j in range(i+1,m+n+1):
+#         links.append([i,j])
+# links=np.array(links)
+# res=newton(X,links,k,m,n,p)
+# print(res)
+# print(f(X,res,links,p))
+# res=gradientDescent(X,links,k,m,n,p)
+# print(res)
