@@ -41,7 +41,8 @@ def gradientDescent(X,links,k,m,n,p,eplison=1e-4,maxiter=1e3):
         t=lineSearch(X,var,links,deltax,k,m,n,p)
         var=var+t*deltax
         gradnorm=np.linalg.norm(calculateGradient(X,var,links,k,m,n,p).flatten(),ord=2)
-        normList.append(gradnorm)
+        functionVal=f(X,var,links,m,p)
+        normList.append([gradnorm,functionVal])
         i+=1
     return var,normList
 
@@ -67,6 +68,10 @@ def newton(X,links,k,m,n,p,epsilon=1e-4,maxiter=1e3):
     decrement,i=1,1
     normList=[]
     while decrement>epsilon and i<maxiter:
+        gradnorm=np.linalg.norm(calculateGradient(X,var,links,k,m,n,p).flatten(),ord=2)
+        functionVal=f(X,var,links,m,p)
+        normList.append([gradnorm,functionVal])
+
         H = calculateHessian(X,var,links,k,m,n,p)  # Calculate Hessian
         grad = calculateGradient(X,var,links,k,m,n,p).reshape((-1,1))
         deltax = -np.linalg.inv(H)@grad
@@ -74,22 +79,51 @@ def newton(X,links,k,m,n,p,epsilon=1e-4,maxiter=1e3):
         t=lineSearch(X,var,links,deltax,k,m,n,p)
         var=var+t*deltax
         decrement=grad.T@H@grad
-        gradnorm=np.linalg.norm(calculateGradient(X,var,links,k,m,n,p).flatten(),ord=2)
-        normList.append(gradnorm)
         i+=1
     return var,normList
 
-def testCase():
-    X = np.array([[1.0,1.0],[2.0,0.7],[2.7,0.5],[3,1.5],[2.5,3],[2.5,3],[1,3],[1,2]])
+def testCase(title,p,method):
+    X = np.array([[1.0,1.0],[2.0,0.7],[2.7,0.5],[3,1.5],[2.5,3],[2.5,3],[1.5,2.7],[1,2]])
     links=np.array([[14,1],[14,8],[14,7],[14,9],[14,13],[14,12],[13,1],[13,12],[13,2],[13,3],[13,11],[12,1],[12,11],[12,9],[11,3],[11,4],[11,10],[10,4],[10,14],[10,9],[10,6],[9,6],[9,7]])
-    m,n,k,p=8,6,2,1.2
-    result,normList=gradientDescent(X,links,k,m,n,p)
-    print("Gradient Descent : ",result,f(X,result,links,m,p),len(normList))
-    result,normList=newton(X,links,k,m,n,p)
-    print("Newton's Method : ",result,f(X,result,links,m,p),len(normList))
+    m,n,k=8,6,2
+    if(method=='gd'):
+        result,normList=gradientDescent(X,links,k,m,n,p)
+        print("Gradient Descent : ",result,f(X,result,links,m,p))
+        for i,val in enumerate(normList):
+            print("              ",i,"                           ",val[0],"                         ",val[1])
+    else:
+        result,normList=newton(X,links,k,m,n,p)
+        print("Newton's Method : ",result,f(X,result,links,m,p))
+        for i,val in enumerate(normList):
+            print("              ",i,"                           ",val[0],"                         ",val[1])
+    fig, ax = plt.subplots()
+    G = nx.Graph()
+    color_map=[]
+    for i in range(m+n):
+        if(i+1<=m):
+            color_map.append('black')
+        else:
+            color_map.append('blue')
+        G.add_node(i+1)
 
+    for i in links:
+        G.add_edge(i[0],i[1])
 
-testCase()
+    pos={}
+    for i,pt in enumerate(X):
+        pos[i+1]=list(pt)
+    for i,pt in enumerate(result):
+        pos[i+m+1]=list(pt)
+
+    # options = {'node_size' : 100, 'node_color' : 'k'}
+    nx.draw_networkx_nodes(G, pos, node_size=20, node_color=color_map,ax=ax)
+    nx.draw_networkx_edges(G, pos, alpha=0.2)
+    plt.title(title)
+    
+    ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+    plt.show()
+
+testCase("Newton's Method at p=5",5,"nm")
 # X=np.array([[1,1],[1,2],[2,2],[2,1]])
 # X = np.random.uniform(3,8,(8,2))
 # X = np.array([[7.15237843,4.70701317],
